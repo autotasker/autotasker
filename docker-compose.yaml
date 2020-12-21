@@ -1,0 +1,39 @@
+version: "3.9"
+
+services:
+  autotasker:
+    image: versus666/autotasker:latest
+    container_name: autotasker
+    restart: always
+    volumes:
+      - /var/log:/opt/autotasker/log # точка монтирования логов (/var/log изменить при необходимости)
+      - /etc:/opt/autotasker/conf/ # точка монтирования файла с конфигом (/etc изменить при необходимости)
+    depends_on:
+      - postgres
+    links:
+      - postgres
+    networks:
+      - bridge
+
+
+  postgres:
+    image: versus666/autotasker_db:latest
+    container_name: autotasker_db
+    restart: always
+    networks:
+      - bridge
+    ports:
+      - "5432:5432"
+
+
+networks:
+  bridge:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.5.0.0/16
+          gateway: 10.5.0.1
+          aux_addresses:
+            autotasker: 10.5.0.5
+            postgres: 10.5.0.6
+
